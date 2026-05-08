@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Major Arcana Meanings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative&display=swap" rel="stylesheet">
+    <style>
+        body { background: radial-gradient(circle at center, #1a0033, #000000); }
+        .scrollbar-hide { scrollbar-width: none; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="min-h-screen text-amber-100">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+        <div class="text-center mb-10">
+            <h1 class="text-6xl font-bold tracking-widest" style="font-family: 'Cinzel Decorative', cursive;">
+                Major Arcana Meanings
+            </h1>
+            <p class="text-purple-300 mt-3 text-lg">Browse upright and reversed meanings of all 22 Major Arcana cards.</p>
+            <div class="flex flex-wrap justify-center gap-4 mt-6">
+                <a href="/" class="px-6 py-3 rounded-2xl border border-amber-400/50 bg-amber-500/10 hover:bg-amber-500/20 transition">
+                    Back to Reading
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- 左侧：所有牌名入口 -->
+            <aside class="lg:col-span-4 bg-zinc-900/80 border border-purple-800 rounded-3xl p-6 max-h-[720px] overflow-y-auto scrollbar-hide">
+                <h2 class="text-2xl font-semibold mb-5 text-amber-200">Card List</h2>
+                <div id="card-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3"></div>
+            </aside>
+
+            <!-- 右侧：点击后的详情页面 -->
+            <main class="lg:col-span-8 bg-zinc-900/80 border border-purple-800 rounded-3xl p-8 min-h-[720px]">
+                <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center text-purple-300">
+                    <p class="text-2xl mb-3">Select a card from the list.</p>
+                    <p class="max-w-md">The left side will show the card image and name; the right side will show upright and reversed meanings.</p>
+                </div>
+
+                <div id="card-detail" class="hidden grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <!-- 左边：牌和名字 -->
+                    <section class="text-center">
+                        <div class="mx-auto w-[260px] rounded-3xl overflow-hidden border border-amber-400 shadow-2xl bg-zinc-950">
+                            <img id="detail-image" src="" alt="" class="w-full h-[390px] object-cover">
+                        </div>
+                        <h2 id="detail-name" class="text-4xl font-bold mt-6 text-amber-200"></h2>
+                    </section>
+
+                    <!-- 右边：正逆位含义 -->
+                    <section class="space-y-6">
+                        <div class="rounded-3xl border border-amber-500/40 bg-amber-500/10 p-6">
+                            <h3 class="text-2xl font-semibold mb-3 text-amber-200">Upright Meaning</h3>
+                            <p id="detail-upright" class="leading-relaxed text-zinc-100"></p>
+                        </div>
+
+                        <div class="rounded-3xl border border-purple-500/40 bg-purple-500/10 p-6">
+                            <h3 class="text-2xl font-semibold mb-3 text-purple-200">Reversed Meaning</h3>
+                            <p id="detail-reversed" class="leading-relaxed text-zinc-100"></p>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/js/meanings.js"></script>
+</body>
+</html>
