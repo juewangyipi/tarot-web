@@ -493,8 +493,7 @@ CARD_DATABASE = {
     }
 }
 
-# 注意：实际部署时请把你原代码里完整的 22 张牌数据完整粘贴到这里
-# 为了演示，我先用 2 张牌做示例
+
 
 DECK = list(CARD_DATABASE.keys())
 
@@ -556,7 +555,7 @@ THEME_EXPLANATIONS = {
 def draw_unique_cards(numbers, deck):
     selected_cards = []
     for number in numbers:
-        card_index = (number - 1) % len(deck)
+        card_index = (number - 1) // 2
         card_name = deck[card_index]
         orientation = "upright" if number % 2 == 0 else "reversed"
         selected_cards.append({"number": number, "card": card_name, "orientation": orientation})
@@ -585,6 +584,22 @@ def calculate_total_scores(selected_cards, positions, category):
         position = positions[index]
         card_score = calculate_card_score(card_name, orientation, position, category)
         card_scores.append(card_score)
+    # 对立牌加成
+    if len(card_scores) == 3:
+        opposing_coeffs = None
+        opposing_indices = []
+        for pair, coeffs in OPPOSING_PAIRS:
+            if pair[0] in card_names and pair[1] in card_names:
+                opposing_coeffs = coeffs
+                opposing_indices = [card_names.index(pair[0]), card_names.index(pair[1])]
+                break
+        if opposing_coeffs:
+            for idx in opposing_indices:
+                for dim in opposing_coeffs:
+                    card_scores[idx][dim] *= opposing_coeffs[dim]
+            neutral_idx = 3 - opposing_indices[0] - opposing_indices[1]
+            for dim in card_scores[neutral_idx]:
+                card_scores[neutral_idx][dim] *= 1.2
 
     for score in card_scores:
         for dimension in total_scores:
@@ -650,14 +665,54 @@ def api_draw():
         numbers = [int(x) for x in numbers_str.split() if x.strip().isdigit()][:required_count]
 
     # 保证不重复
-    while len(set([ (n-1)%22 for n in numbers ])) < len(numbers):
+
+    while len(set([(n - 1) // 2 for n in numbers])) < len(numbers):
         numbers = [random.randint(1, 44) for _ in range(required_count)]
 
+    random.shuffle(DECK)
     selected_cards = draw_unique_cards(numbers, DECK)
     total_scores = calculate_total_scores(selected_cards, positions, category)
     result = generate_reading(selected_cards, positions, category, total_scores)
 
     return jsonify(result)
+
+
+
+def get_card_image_filename(card_name):
+    return card_name.lower().replace(" ", "_") + ".png"
+
+@app.route('/meanings')
+def meanings_page():
+    return render_template('card_meanings.html')
+
+@app.route('/api/cards', methods=['GET'])
+def api_cards():
+    cards = []
+    for index, card_name in enumerate(DECK, start=1):
+        cards.append({
+            "id": index,
+            "name": card_name,
+            "image": get_card_image_filename(card_name),
+            "upright": CARD_DATABASE[card_name]["upright"]["overall"],
+            "reversed": CARD_DATABASE[card_name]["reversed"]["overall"]
+        })
+    return jsonify(cards)
+
+@app.route('/api/cards/<int:card_id>', methods=['GET'])
+def api_card_detail(card_id):
+    if card_id < 1 or card_id > len(DECK):
+        return jsonify({"error": "Card not found"}), 404
+
+    card_name = DECK[card_id - 1]
+    card_info = CARD_DATABASE[card_name]
+
+    return jsonify({
+        "id": card_id,
+        "name": card_name,
+        "image": get_card_image_filename(card_name),
+        "upright": card_info["upright"]["overall"],
+        "reversed": card_info["reversed"]["overall"]
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
